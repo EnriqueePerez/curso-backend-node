@@ -11,7 +11,10 @@ const MONGO_URI = `mongodb+srv://${USER}:${PASSWORD}@${config.dbHost}/${DB_NAME}
 
 class MongoLib {
   constructor() {
-    this.client = new MongoClient(MONGO_URI, { useNewUrlParser: true }); //Creating a new instance of a mongo client
+    this.client = new MongoClient(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }); //Creating a new instance of a mongo client
     this.dbName = DB_NAME; //Passing the dbName to the class
   }
 

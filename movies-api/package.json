@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "SET DEBUG=app:* & nodemon index",
-    "start": "SET NOVE_ENV=production & node index"
+    "dev": "DEBUG=app:* NODE_ENV=development nodemon index",
+    "start": "NODE_ENV=production node index.js"
   },
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/EnriqueePerez/curso-backend-node/issues"
   },
