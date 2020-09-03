@@ -34,7 +34,7 @@ class MongoLib {
       });
     }
 
-    return MongoLib.connection; //If a connection exits, returned it
+    return MongoLib.connection; //If a connection exists, returned it
   }
 
   //Setting the general functions to work

@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 
 const { config } = require('./config/index'); //getting the config for the development enviroment
@@ -11,6 +12,8 @@ const {
 } = require('./utils/middlewares/errorHandlers'); //Adding error middlewares
 const notFoundHandler = require('./utils/middlewares/notFoundHandler');
 
+app.use(cors());
+
 // body parser
 app.use(express.json());
 
@@ -20,7 +23,7 @@ moviesApi(app); //Using the movies routes in the app server
 app.use(notFoundHandler);
 
 //Error middlewares must be at the end, after the routes
-app.use(logErrors); //sending error
+app.use(logErrors); //log error on console
 app.use(wrapErrors); // managing if it is a boom error or not
 app.use(errorHandler); //Sending the error to client
 
