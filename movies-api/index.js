@@ -4,6 +4,7 @@ const app = express();
 
 const { config } = require('./config/index'); //getting the config for the development enviroment
 const moviesApi = require('./routes/movies');
+const userMoviesApi = require('./routes/userMovies');
 
 const {
   logErrors,
@@ -17,7 +18,9 @@ app.use(cors());
 // body parser
 app.use(express.json());
 
-moviesApi(app); //Using the movies routes in the app server
+//routes
+moviesApi(app);
+userMoviesApi(app);
 
 // Catching a posible 404 errors
 app.use(notFoundHandler);

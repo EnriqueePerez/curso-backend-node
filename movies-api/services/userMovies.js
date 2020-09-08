@@ -7,7 +7,7 @@ class UserMoviesServices {
   }
 
   async getUserMovies({ userId }) {
-    const query = userId && { userId }; //Getting the userMovies by userId
+    const query = userId && { userId }; //Getting the userMovies by userId like and object or alone
     const userMovies = await this.mongoDB.getAll(this.collection, query);
 
     return userMovies || [];
