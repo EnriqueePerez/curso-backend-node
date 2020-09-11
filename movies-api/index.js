@@ -5,6 +5,7 @@ const app = express();
 const { config } = require('./config/index'); //getting the config for the development enviroment
 const moviesApi = require('./routes/movies');
 const userMoviesApi = require('./routes/userMovies');
+const authApi = require('./routes/auth');
 
 const {
   logErrors,
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 //routes
+authApi(app);
 moviesApi(app);
 userMoviesApi(app);
 
