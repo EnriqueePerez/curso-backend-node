@@ -31,8 +31,8 @@ function authApi(app) {
     passport.authenticate('basic', (error, user) => {
       try {
         if (error || !user) {
-          //If not error or user, send error
-          next(boom.unauthorized());
+          //If error or not user, send error
+          next(boom.unauthorized('No pase'));
         }
 
         req.login(user, { session: false }, async (error) => {
@@ -52,7 +52,7 @@ function authApi(app) {
             sub: id,
             name,
             email,
-            scope: apiKey.scopes,
+            scopes: apiKey.scopes,
           };
 
           const token = jwt.sign(payload, config.authJwtSecret, {

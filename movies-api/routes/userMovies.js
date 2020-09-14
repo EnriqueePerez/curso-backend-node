@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 
 //Services and validations handler
 const UserMoviesServices = require('../services/userMovies');
@@ -9,6 +10,9 @@ const { movieIdSchema } = require('../utils/schemas/movies');
 const { userIdSchema } = require('../utils/schemas/users');
 const { createUserMovieSchema } = require('../utils/schemas/userMovies');
 
+//JWT Strategy
+require('../utils/auth/strategies/jwt');
+
 function userMoviesApi(app) {
   const router = express.Router();
   app.use('/api/user-movies', router); //Using a route prefix
@@ -17,6 +21,7 @@ function userMoviesApi(app) {
 
   router.get(
     '/',
+    passport.authenticate('jwt', { session: false }),
     validationHandler({ userId: userIdSchema }, 'query'), //Verifying the userId which is in the query
     async (req, res, next) => {
       const { userId } = req;
@@ -34,6 +39,7 @@ function userMoviesApi(app) {
 
   router.post(
     '/',
+    passport.authenticate('jwt', { session: false }),
     validationHandler(createUserMovieSchema),
     async (req, res, next) => {
       const { body: userMovie } = req;
@@ -54,6 +60,7 @@ function userMoviesApi(app) {
 
   router.delete(
     '/:userMovieId',
+    passport.authenticate('jwt', { session: false }),
     validationHandler({ userMovieId: movieIdSchema }, 'params'),
     async (req, res, next) => {
       const { userMovieId } = req.params;

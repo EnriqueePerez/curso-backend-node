@@ -46,11 +46,9 @@ class MongoLib {
   }
 
   get(collection, id) {
-    return this.connect()
-      .then((db) => {
-        return db.collection(collection).findOne({ _id: ObjectId(id) }); //Returning the element by id
-      })
-      .then((result) => result.insertedId);
+    return this.connect().then((db) => {
+      return db.collection(collection).findOne({ _id: ObjectId(id) }); //Returning the element by id
+    });
   }
 
   create(collection, data) {

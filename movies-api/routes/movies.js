@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const MoviesService = require('../services/movies');
 
 const {
@@ -8,6 +9,10 @@ const {
 } = require('../utils/schemas/movies');
 
 const validationHandler = require('../utils/middlewares/validationHandler');
+const scopesValidationHandler = require('../utils/middlewares/scopeValidationHandler');
+
+//JWT Strategy
+require('../utils/auth/strategies/jwt');
 
 function moviesApi(app) {
   const router = express.Router();
@@ -16,22 +21,29 @@ function moviesApi(app) {
 
   const moviesServices = new MoviesService(); //Creating a new class of the movies services to use
 
-  router.get('/', async (req, res, next) => {
-    const { tags } = req.query;
-    try {
-      const movies = await moviesServices.getMovies({ tags });
+  router.get(
+    '/',
+    passport.authenticate('jwt', { session: false }), //authenticating user
+    scopesValidationHandler(['read:movies']), //checking if the user has enough permissions
+    async (req, res, next) => {
+      const { tags } = req.query;
+      try {
+        const movies = await moviesServices.getMovies({ tags });
 
-      res.status(200).json({
-        data: movies,
-        message: 'Movies listed',
-      });
-    } catch (err) {
-      next(err);
+        res.status(200).json({
+          data: movies,
+          message: 'Movies listed',
+        });
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   router.get(
     '/:movieId',
+    passport.authenticate('jwt', { session: false }), //authenticating user
+    scopesValidationHandler(['read:movies']), //checking if the user has enough permissions
     validationHandler({ movieId: movieIdSchema }, 'params'), //validating the movieId, from the params
     async (req, res, next) => {
       const { movieId } = req.params;
@@ -50,6 +62,8 @@ function moviesApi(app) {
 
   router.post(
     '/',
+    passport.authenticate('jwt', { session: false }), //authenticating user
+    scopesValidationHandler(['create:movies']), //checking if the user has enough permissions
     validationHandler(createMovieSchema), //validating the body of the post
     async (req, res, next) => {
       const { body: movie } = req; //extracting the movie from the body
@@ -68,6 +82,8 @@ function moviesApi(app) {
 
   router.put(
     '/:movieId',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['update:movies']),
     validationHandler({ movieId: movieIdSchema }, 'params'), //validating the movieId, from the params
     validationHandler(updateMovieSchema), //validating the body of the update
     async (req, res, next) => {
@@ -91,6 +107,8 @@ function moviesApi(app) {
 
   router.delete(
     '/:movieId',
+    passport.authenticate('jwt', { session: false }),
+    scopesValidationHandler(['delete:movies']),
     validationHandler({ movieId: movieIdSchema }, 'params'), //validating the movieId, from the params
     async (req, res, next) => {
       const { movieId } = req.params;
