@@ -15,6 +15,9 @@ app.use(cookieParser());
 //Basic Strategy
 require('./utils/auth/strategies/basic');
 
+// OAuth Strategy
+require('./utils/auth/strategies/oauth');
+
 app.post('/auth/sign-in', async function (req, res, next) {
   passport.authenticate('basic', function (error, data) {
     try {
@@ -27,7 +30,7 @@ app.post('/auth/sign-in', async function (req, res, next) {
           next(error);
         }
 
-        const { token, ...user } = data;
+        const { token, user } = data;
 
         res.cookie('token', token, {
           httpOnly: !config.dev,
@@ -69,14 +72,17 @@ app.post('/user-movies', async function (req, res, next) {
 
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies`,
-      header: { Authorization: `Bearer ${token}` }, //Sending the token in the header
+      headers: { Authorization: `Bearer ${token}` }, //Sending the token in the header
       method: 'post',
       data: userMovie,
     });
+    console.log('todo bien hasta aqui');
 
-    if (status !== 201) {
+    console.log(status, 'aqui esta el estado');
+
+    if (status !== 200) {
       //If something bad happen, send error
-      next(boom.badImplementation());
+      return next(boom.badImplementation('paso algo feo'));
     }
 
     res.status(201).json(data); //Returning the data to the SPA
@@ -92,9 +98,8 @@ app.delete('/user-movies/:userMovieId', async function (req, res, next) {
 
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/user-movies/${userMovieId}`,
-      header: { Authorization: `Bearer ${token}` }, //Sending the token in the header
+      headers: { Authorization: `Bearer ${token}` }, //Sending the token in the header
       method: 'delete',
-      data: userMovie,
     });
 
     if (status !== 200) {
@@ -107,6 +112,38 @@ app.delete('/user-movies/:userMovieId', async function (req, res, next) {
     next(err);
   }
 });
+
+//Route to auth with google
+app.get(
+  '/auth/google-oauth',
+  passport.authenticate('google-oauth', {
+    scope: ['email', 'profile', 'openid'],
+  })
+);
+
+//Route to redirect after signing in with google
+app.get(
+  '/auth/google-oauth/callback',
+  passport.authenticate('google-oauth', { session: false }),
+  function (req, res, next) {
+    //Looking for a user
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+
+    //Getting the token and the user info
+    const { token, ...user } = req.user;
+
+    //Putting the token in a cookie
+    res.cookie('token', token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    //Sending the user to verify that everything is right
+    res.status(200).json(user);
+  }
+);
 
 app.listen(config.port, function () {
   console.log(`Listening http://localhost:${config.port}`);
